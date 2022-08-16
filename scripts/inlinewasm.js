@@ -36,18 +36,25 @@ if (files.length === 0) {
     );
   };
 
-  const getOutputPath = (inputPath) =>
+  const rootPath = (...paths) =>
     path.resolve(
-      path.dirname(inputPath),
-      path.basename(inputPath).replace(/\.wasm$/, '.inl.js')
+      __dirname,
+      '..',
+      ...paths
     );
+  const getInputPath = (filePath) => rootPath(filePath);
+  const getOutputPath = (filePath) => rootPath(
+    path.dirname(filePath),
+    path.basename(filePath).replace(/\.wasm$/, '.inl.js')
+  );
 
   console.log('Start generating inlined wasm for files');
-  return Promise.all([
+  await Promise.all([
     files.map((filePath) => {
-      console.log(filePath);
+      const inputPath = getInputPath(filePath);
       const outputPath = getOutputPath(filePath);
-      return generateInlineFile(filePath, outputPath);
+      console.log(inputPath);
+      return generateInlineFile(inputPath, outputPath);
     })
   ]);
 })();
