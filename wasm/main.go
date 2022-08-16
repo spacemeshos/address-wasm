@@ -48,16 +48,30 @@ var GetHRPNetworkCallback = js.FuncOf(func(this js.Value, args []js.Value) inter
 	return nil
 })
 
+//
+var VerifyAddressCallback = js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+	input := args[0]
+	callback := args[1]
+	_, err := address.StringToAddress(input.String())
+	if err != nil {
+		callback.Invoke(js.ValueOf(err.Error()))
+	}
+	callback.Invoke(js.Null())
+	return nil
+})
+
 func RegisterCallbacks() {
-	js.Global().Set("__setHRPNetwork", SetHRPNetwork)
-	js.Global().Set("__generateBech32Address", GenerateAddressCallback)
 	js.Global().Set("__getHRPNetwork", GetHRPNetworkCallback)
+	js.Global().Set("__setHRPNetwork", SetHRPNetwork)
+	js.Global().Set("__generateAddress", GenerateAddressCallback)
+	js.Global().Set("__verifyAddress", VerifyAddressCallback)
 }
 
 func CleanUp() {
-	js.Global().Set("__generateBech32Address", js.Undefined())
 	js.Global().Set("__getHRPNetwork", js.Undefined())
 	js.Global().Set("__setAddressConfig", js.Undefined())
+	js.Global().Set("__generateAddress", js.Undefined())
+	js.Global().Set("__verifyAddress", js.Undefined())
 }
 
 func main() {
@@ -69,4 +83,5 @@ func main() {
 	GenerateAddressCallback.Release()
 	GetHRPNetworkCallback.Release()
 	SetHRPNetwork.Release()
+	VerifyAddressCallback.Release()
 }

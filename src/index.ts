@@ -24,6 +24,10 @@ const Bech32 = async (hrp: string) => {
 
   return {
     setHRPNetwork: (hrp: string) => _global.__setHRPNetwork(hrp),
+    getHRPNetwork: (): Promise<string> =>
+      new Promise((resolve) =>
+        _global.__getHRPNetwork(resolve)
+      ),
     generateAddress: (pubKey: Uint8Array) =>
       new Promise<string>((resolve, reject) => {
         if (!(pubKey instanceof Uint8Array) || pubKey.length !== 32) {
@@ -31,11 +35,11 @@ const Bech32 = async (hrp: string) => {
             new Error('Bech32.generateAddress requires publicKey represented as Uint8Array[32]')
           );
         }
-        _global.__generateBech32Address(pubKey, resolve)
+        _global.__generateAddress(pubKey, resolve)
       }),
-    getHRPNetwork: (): Promise<string> =>
-      new Promise((resolve) =>
-        _global.__getHRPNetwork(resolve)
+    verifyAddress: (addr: string) =>
+      new Promise<string>((resolve, reject) =>
+        _global.__verifyAddress(addr, (err) => err ? reject(new Error(err)) : resolve(addr))
       ),
   };
 };
