@@ -23,7 +23,7 @@ const Bech32 = async (hrp: string) => {
   _global.__setHRPNetwork(hrp);
 
   return {
-    setHRPNetwork: (hrp: string) => _global.__setHRPNetwork(hrp),
+    setHRPNetwork: (hrp: string): void => _global.__setHRPNetwork(hrp),
     getHRPNetwork: (): Promise<string> =>
       new Promise((resolve) =>
         _global.__getHRPNetwork(resolve)
