@@ -26,11 +26,9 @@ jobs:
         uses: actions/checkout@v2
       # Building
       - name: build wasm
-        run: make
-      - name: install js/ts dependencies
-        run: yarn
+        run: make gen-wasm
       - name: build js
-        run: yarn build
+        run: make gen-js
       # Running tests
       - name: run tests
         run: yarn test

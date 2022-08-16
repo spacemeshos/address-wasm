@@ -34,14 +34,13 @@ import bech32 from '@spacemeshos/address-wasm'
 This package contains wasm implementation on go-lang, that uses `spacemeshos/address` implementation inside.
 Also, package includes javascript wrapper over wasm runner, that provides a clean facade for functions.
 
-To build WASM you need installed Go (see version in `go.mod`) and run:
+You will need installed Go (check out version in `go.mod`), NodeJS and yarn.
+Then you can just type:
 ```
 make
 ```
 
-To build wrapper and run tests you need to install NodeJS and yarn, then:
+To run different build processes — check out Makefile. For example to build only wasm file you can run
 ```
-yarn
-yarn build
-yarn test
+make gen-wasm
 ```
