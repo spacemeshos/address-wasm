@@ -1,0 +1,31 @@
+{
+  "name": "@spacemeshos/address-wasm",
+  "version": "0.0.1",
+  "description": "",
+  "main": "./lib/index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "build": "tsc -p ./tsconfig.json",
+    "test": "jest"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/spacemeshos/address.git"
+  },
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/spacemeshos/address/issues"
+  },
+  "homepage": "https://github.com/spacemeshos/address#readme",
+  "devDependencies": {
+    "@types/jest": "^28.1.7",
+    "@types/node": "^18.7.5",
+    "jest": "^28.1.3",
+    "ts-jest": "^28.0.8",
+    "tsc": "^2.0.4",
+    "typescript": "^4.7.4"
+  }
+}
