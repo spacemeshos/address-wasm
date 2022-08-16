@@ -1,0 +1,34 @@
+name: CI
+
+env:
+  go-version: '1.18.2'
+
+# Trigger the workflow on all pull requests, and on push to specific branches
+on:
+  # run for all pull requests and pushes to certain branches
+  pull_request:
+
+jobs:
+  run-tests:
+    runs-on: ubuntu-latest
+    steps:
+      # Preparing env
+      - name: set up go
+        uses: actions/setup-go@v2
+        with:
+          go-version: ${{ env.go-version }}
+      - name: Install Node.js, NPM
+        if: ${{ steps.result.outputs.status != 'success' }}
+        uses: actions/setup-node@v2-beta
+        with:
+          node-version: '14'
+      - name: checkout
+        uses: actions/checkout@v2
+      # Building
+      - name: build wasm
+        run: make gen-wasm
+      - name: build js
+        run: make gen-js
+      # Running tests
+      - name: run tests
+        run: yarn test
