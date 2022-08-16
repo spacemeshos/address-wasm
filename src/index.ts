@@ -20,13 +20,10 @@ const runWasm = async (wasmBytes: () => Uint8Array) => {
 const Bech32 = async (hrp: string) => {
   const _global = load();
   await runWasm(require('../build/main.inl.js'));
-  _global.__setAddressConfig(hrp);
+  _global.__setHRPNetwork(hrp);
 
   return {
-    setHRPNetwork: (hrp: string) =>
-      new Promise<boolean>((resolve) =>
-        _global.__setAddressConfig(hrp, resolve)
-      ),
+    setHRPNetwork: (hrp: string) => _global.__setHRPNetwork(hrp),
     generateAddress: (pubKey: Uint8Array) =>
       new Promise<string>((resolve, reject) => {
         if (!(pubKey instanceof Uint8Array) || pubKey.length !== 32) {

@@ -25,10 +25,8 @@ func TypedArrayToByteSlice(arg js.Value) []byte {
 }
 
 //
-var SetAddressConfigCallback = js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+var SetHRPNetwork = js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 	address.SetAddressConfig(args[0].String())
-	callback := args[1]
-	callback.Invoke(js.ValueOf(true))
 	return nil
 })
 
@@ -51,7 +49,7 @@ var GetHRPNetworkCallback = js.FuncOf(func(this js.Value, args []js.Value) inter
 })
 
 func RegisterCallbacks() {
-	js.Global().Set("__setAddressConfig", SetAddressConfigCallback)
+	js.Global().Set("__setHRPNetwork", SetHRPNetwork)
 	js.Global().Set("__generateBech32Address", GenerateAddressCallback)
 	js.Global().Set("__getHRPNetwork", GetHRPNetworkCallback)
 }
@@ -70,5 +68,5 @@ func main() {
 	CleanUp()
 	GenerateAddressCallback.Release()
 	GetHRPNetworkCallback.Release()
-	SetAddressConfigCallback.Release()
+	SetHRPNetwork.Release()
 }
