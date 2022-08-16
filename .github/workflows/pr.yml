@@ -11,8 +11,6 @@ on:
 jobs:
   run-tests:
     runs-on: ubuntu-latest
-    needs: filter-changes
-    timeout-minutes: 10
     steps:
       # Preparing env
       - name: set up go
