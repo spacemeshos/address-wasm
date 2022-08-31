@@ -4,6 +4,7 @@
 package main
 
 import (
+	"encoding/hex"
 	"syscall/js"
 
 	"github.com/spacemeshos/address"
@@ -49,14 +50,15 @@ var GetHRPNetworkCallback = js.FuncOf(func(this js.Value, args []js.Value) inter
 })
 
 //
-var VerifyAddressCallback = js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+var ParseAddressCallback = js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 	input := args[0]
 	callback := args[1]
-	_, err := address.StringToAddress(input.String())
+	addr, err := address.StringToAddress(input.String())
+	hexAddr := hex.EncodeToString(addr.Bytes())
 	if err != nil {
-		callback.Invoke(js.ValueOf(err.Error()))
+		callback.Invoke(js.ValueOf(err.Error()), js.Null())
 	}
-	callback.Invoke(js.Null())
+	callback.Invoke(js.Null(), js.ValueOf(hexAddr))
 	return nil
 })
 
@@ -64,14 +66,14 @@ func RegisterCallbacks() {
 	js.Global().Set("__getHRPNetwork", GetHRPNetworkCallback)
 	js.Global().Set("__setHRPNetwork", SetHRPNetwork)
 	js.Global().Set("__generateAddress", GenerateAddressCallback)
-	js.Global().Set("__verifyAddress", VerifyAddressCallback)
+	js.Global().Set("__parse", ParseAddressCallback)
 }
 
 func CleanUp() {
 	js.Global().Set("__getHRPNetwork", js.Undefined())
 	js.Global().Set("__setAddressConfig", js.Undefined())
 	js.Global().Set("__generateAddress", js.Undefined())
-	js.Global().Set("__verifyAddress", js.Undefined())
+	js.Global().Set("__parse", js.Undefined())
 }
 
 func main() {
@@ -83,5 +85,5 @@ func main() {
 	GenerateAddressCallback.Release()
 	GetHRPNetworkCallback.Release()
 	SetHRPNetwork.Release()
-	VerifyAddressCallback.Release()
+	ParseAddressCallback.Release()
 }

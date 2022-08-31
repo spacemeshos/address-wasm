@@ -17,6 +17,12 @@ const runWasm = async (wasmBytes: () => Uint8Array) => {
   return go;
 };
 
+const hexToBytes = (hex: string): Uint8Array => {
+  for (var bytes = [], c = 0; c < hex.length; c += 2)
+      bytes.push(parseInt(hex.substring(c, c + 2), 16));
+  return Uint8Array.from(bytes);
+};
+
 const Bech32 = async (hrp: string) => {
   const _global = load();
   await runWasm(require('../build/main.inl.js'));
@@ -30,16 +36,22 @@ const Bech32 = async (hrp: string) => {
       ),
     generateAddress: (pubKey: Uint8Array) =>
       new Promise<string>((resolve, reject) => {
-        if (!(pubKey instanceof Uint8Array) || pubKey.length !== 32) {
+        if (!(pubKey instanceof Uint8Array) || pubKey.length < 20) {
           return reject(
-            new Error('Bech32.generateAddress requires publicKey represented as Uint8Array[32]')
+            new Error('Bech32.generateAddress requires publicKey represented as Uint8Array[20+]')
           );
         }
         _global.__generateAddress(pubKey, resolve)
       }),
-    verifyAddress: (addr: string) =>
-      new Promise<string>((resolve, reject) =>
-        _global.__verifyAddress(addr, (err) => err ? reject(new Error(err)) : resolve(addr))
+    verify: (addr: string) =>
+      new Promise<boolean>((resolve) =>
+        _global.__parse(addr, (err, res) => err ? resolve(false) : resolve(true))
+      ),
+    parse: (addr: string) =>
+      new Promise<Uint8Array>((resolve, reject) =>
+        _global.__parse(addr, (err, res) => err ? reject(new Error(err)) : resolve(
+          hexToBytes(res)
+        ))
       ),
   };
 };
