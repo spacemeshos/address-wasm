@@ -32,41 +32,35 @@ var SetHRPNetwork = js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 })
 
 //
-var GenerateAddressCallback = js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+var GenerateAddress = js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 	var publicKey []byte = TypedArrayToByteSlice(args[0])
 	address := address.GenerateAddress(publicKey)
-	callback := args[1]
-	callback.Invoke(address.String())
-	return nil
+	return js.ValueOf(address.String())
 })
 
 //
-var GetHRPNetworkCallback = js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+var GetHRP = js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 	var addr address.Address
 	hrp := addr.GetHRPNetwork()
-	callback := args[0]
-	callback.Invoke(hrp)
-	return nil
+	return js.ValueOf(hrp)
 })
 
 //
-var ParseAddressCallback = js.FuncOf(func(this js.Value, args []js.Value) interface{} {
+var Parse = js.FuncOf(func(this js.Value, args []js.Value) interface{} {
 	input := args[0]
-	callback := args[1]
 	addr, err := address.StringToAddress(input.String())
-	hexAddr := hex.EncodeToString(addr.Bytes())
 	if err != nil {
-		callback.Invoke(js.ValueOf(err.Error()), js.Null())
+		return []interface{}{err.Error(), nil}
 	}
-	callback.Invoke(js.Null(), js.ValueOf(hexAddr))
-	return nil
+	hexAddr := hex.EncodeToString(addr.Bytes())
+	return []interface{}{nil, hexAddr}
 })
 
 func RegisterCallbacks() {
-	js.Global().Set("__getHRPNetwork", GetHRPNetworkCallback)
+	js.Global().Set("__getHRPNetwork", GetHRP)
 	js.Global().Set("__setHRPNetwork", SetHRPNetwork)
-	js.Global().Set("__generateAddress", GenerateAddressCallback)
-	js.Global().Set("__parse", ParseAddressCallback)
+	js.Global().Set("__generateAddress", GenerateAddress)
+	js.Global().Set("__parse", Parse)
 }
 
 func CleanUp() {
@@ -82,8 +76,8 @@ func main() {
 	<-c
 
 	CleanUp()
-	GenerateAddressCallback.Release()
-	GetHRPNetworkCallback.Release()
+	GenerateAddress.Release()
+	GetHRP.Release()
 	SetHRPNetwork.Release()
-	ParseAddressCallback.Release()
+	Parse.Release()
 }

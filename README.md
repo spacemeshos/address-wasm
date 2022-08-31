@@ -18,16 +18,16 @@ import bech32 from '@spacemeshos/address-wasm'
   // Get some public key
   const publicKey = Uint8Array.from([1, 2, 3, ..., 20]);
   // And generate address from it
-  const addr = await b32.generateAddress(publicKey);
+  const addr = b32.generateAddress(publicKey);
   // You can also verify it
-  console.log(await b32.verify(addr)); // true
+  console.log(b32.verify(addr)); // true
   // Then you can change HRP Network
-  await b32.setHRPNetwork('smtest');
+  b32.setHRPNetwork('smtest');
   // And now previously generated address becomes ivalid,
   // because it refers to different HRP network
-  console.log(await b32.verify(addr)); // false
+  console.log(b32.verify(addr)); // false
   // And get byte-representation of the address:
-  console.log(await b32.parse(addr)); // [0, 0, 0, 0, 1, 2, ..., 20]
+  console.log(b32.parse(addr)); // [0, 0, 0, 0, 1, 2, ..., 20]
 })();
 ```
 

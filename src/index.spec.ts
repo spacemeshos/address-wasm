@@ -15,66 +15,63 @@ describe('@spacemeshos/address-wasm', () => {
     ...pubKey.slice(-20)
   ]);
 
-  it('getHRPNetwork(): string', async () => {
-    const r = await b32.getHRPNetwork();
+  it('getHRPNetwork(): string', () => {
+    const r = b32.getHRPNetwork();
     expect(r).toEqual('sm');
   });
   describe('generateAddress', () => {
-    it('returns Promise.Resolve<string> for valid public key', async () => {
-      const r = await b32.generateAddress(pubKey);
+    it('returns address for valid public key', () => {
+      const r = b32.generateAddress(pubKey);
       expect(r).toHaveLength(48);
       expect(r.startsWith).toBeTruthy();
     });
-    it('returns Promise.Reject<Error> for invalid public key', async () => {
-      await expect(() => b32.generateAddress(Uint8Array.from([]))).rejects.toThrow();
-      await expect(() => b32.generateAddress(Uint8Array.from([0]))).rejects.toThrow();
-      await expect(() => b32.generateAddress(Uint8Array.from([1,2,3]))).rejects.toThrow();
+    it('throws an Error for invalid public key', () => {
+      expect(() => b32.generateAddress(Uint8Array.from([]))).toThrow();
+      expect(() => b32.generateAddress(Uint8Array.from([0]))).toThrow();
+      expect(() => b32.generateAddress(Uint8Array.from([1,2,3]))).toThrow();
     });
     it('golden', async () => {
       const p = Uint8Array.from([0, 0, 0, 0, 107, 14, 132, 231, 192, 227, 195, 127, 55, 8, 231, 230, 122, 228, 173, 236, 117, 74, 243, 127]);
       b32.setHRPNetwork('stest');
-      const r = await b32.generateAddress(p);
+      const r = b32.generateAddress(p);
       b32.setHRPNetwork('sm');
       expect(r).toEqual('stest1qqqqqqrtp6zw0s8rcdlnwz88ueawft0vw490xlc095s8l');
     });
   });
   describe('parse', () => {
-    it('returns promise with the bytes', async () => {
-      const addr = await b32.generateAddress(pubKey);
-      expect(await b32.parse(addr)).toEqual(pubKeyTrimmed);
+    it('returns bytes', () => {
+      const addr = b32.generateAddress(pubKey);
+      expect(b32.parse(addr)).toEqual(pubKeyTrimmed);
     });
-    it('returns rejected promise for invalid string length', async () => {
-      await expect(
-        () => b32.parse('sm123')
-        ).rejects.toThrow(
+    it('throws error for invalid string length', () => {
+      expect(
+        () => {
+          const r = b32.parse('sm123');
+          console.log('WTF?!', r);
+          return r;
+        }
+        ).toThrow(
           'error decode to bech32: invalid bech32 string length 5'
         );
     });
-    it('returns rejected promise for invalid address', async () => {
-      await expect(
+    it('throws error for invalid address', () => {
+      expect(
         () => b32.parse('xx1qqqqqqyxw8ctl4qa69jyuku96ldkwjw5d57n2hg5zgdnf')
-      ).rejects.toThrow(
+      ).toThrow(
         'error decode to bech32: invalid checksum (expected fpzy2y got 5zgdnf)'
       );
     });
-    it('address become invalid after changing HRPNetwork', async () => {
-      const addr = await b32.generateAddress(pubKey);
-      expect(await b32.parse(addr)).toEqual(pubKeyTrimmed);
+    it('address become invalid after changing HRPNetwork', () => {
+      const addr = b32.generateAddress(pubKey);
+      expect(b32.parse(addr)).toEqual(pubKeyTrimmed);
       b32.setHRPNetwork('test');
-      await expect(
+      expect(
         () => b32.parse(addr)
-      ).rejects.toThrow(
+      ).toThrow(
         "wrong network id: expected `test`, got `sm`: unsupported network"
       );
       b32.setHRPNetwork('sm');
-      expect(await b32.parse(addr)).toEqual(pubKeyTrimmed);
-    });
-  });
-  describe('parse', () => {
-    it('returns Promise with bytes from Bech32 address', async () => {
-      const addr = await b32.generateAddress(pubKey);
-      const bytes = await b32.parse(addr);
-      expect(bytes).toEqual(pubKeyTrimmed);
+      expect(b32.parse(addr)).toEqual(pubKeyTrimmed);
     });
   });
 });

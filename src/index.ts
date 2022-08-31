@@ -30,29 +30,22 @@ const Bech32 = async (hrp: string) => {
 
   return {
     setHRPNetwork: (hrp: string): void => _global.__setHRPNetwork(hrp),
-    getHRPNetwork: (): Promise<string> =>
-      new Promise((resolve) =>
-        _global.__getHRPNetwork(resolve)
-      ),
-    generateAddress: (pubKey: Uint8Array) =>
-      new Promise<string>((resolve, reject) => {
-        if (!(pubKey instanceof Uint8Array) || pubKey.length < 20) {
-          return reject(
-            new Error('Bech32.generateAddress requires publicKey represented as Uint8Array[20+]')
-          );
-        }
-        _global.__generateAddress(pubKey, resolve)
-      }),
-    verify: (addr: string) =>
-      new Promise<boolean>((resolve) =>
-        _global.__parse(addr, (err, res) => err ? resolve(false) : resolve(true))
-      ),
-    parse: (addr: string) =>
-      new Promise<Uint8Array>((resolve, reject) =>
-        _global.__parse(addr, (err, res) => err ? reject(new Error(err)) : resolve(
-          hexToBytes(res)
-        ))
-      ),
+    getHRPNetwork: () => _global.__getHRPNetwork(),
+    generateAddress: (pubKey: Uint8Array) => {
+      if (pubKey?.length < 20) {
+        throw new Error('20 bytes required to generate address');
+      }
+      return _global.__generateAddress(pubKey);
+    },
+    verify: (addr: string) => _global.__parse(addr),
+    parse: (addr: string) => {
+      const r = _global.__parse(addr);
+      const [err, hex] = r;
+      if (err) {
+        throw new Error(err);
+      }
+      return hexToBytes(hex)
+    },
   };
 };
 export default Bech32;
