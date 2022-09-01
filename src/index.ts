@@ -28,24 +28,43 @@ const Bech32 = async (hrp: string) => {
   await runWasm(require('../build/main.inl.js'));
   _global.__setHRPNetwork(hrp);
 
+  const stateless = <T>(action: (...args: any) => T, hrp: string) => (...args: any) => {
+    const prevHrp = _global.__getHRPNetwork();
+    _global.__setHRPNetwork(hrp);
+    const r = action(...args);
+    _global.__setHRPNetwork(prevHrp);
+    return r;
+  };
+
+  const hrpOptional = <A, T>(action: (arg: A) => T) => (arg: A, hrp: string | null = null) => {
+    if (hrp) {
+      return stateless(action, hrp)(arg);
+    }
+    return action(arg);
+  };
+
   return {
     setHRPNetwork: (hrp: string): void => _global.__setHRPNetwork(hrp),
     getHRPNetwork: () => _global.__getHRPNetwork(),
-    generateAddress: (pubKey: Uint8Array) => {
+    generateAddress: hrpOptional((pubKey: Uint8Array) => {
       if (pubKey?.length < 20) {
         throw new Error('20 bytes required to generate address');
       }
       return _global.__generateAddress(pubKey);
-    },
-    verify: (addr: string) => _global.__parse(addr),
-    parse: (addr: string) => {
+    }),
+    verify: hrpOptional((addr: string) => {
+      const [err, res] = _global.__parse(addr);
+      if (err) return false;
+      return !!res;
+    }),
+    parse: hrpOptional((addr: string) => {
       const r = _global.__parse(addr);
       const [err, hex] = r;
       if (err) {
         throw new Error(err);
       }
       return hexToBytes(hex)
-    },
+    }),
   };
 };
 export default Bech32;

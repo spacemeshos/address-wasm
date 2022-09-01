@@ -29,6 +29,12 @@ import bech32 from '@spacemeshos/address-wasm'
   // And get byte-representation of the address:
   console.log(b32.parse(addr)); // [0, 0, 0, 0, 1, 2, ..., 20]
 })();
+
+// You can also call `verify`, `parse`, `generateAddress` methods
+// with second argument: HRP. Then it will behave like pure function.
+console.log(b32.generateAddress(publicKey, 'sm')); // 'sm1q...'
+console.log(b32.generateAddress(publicKey, 'stest')); // 'stest1q...'
+console.log(b32.verify(someAddr, 'stest')); // true / false
 ```
 
 ### For contributors
