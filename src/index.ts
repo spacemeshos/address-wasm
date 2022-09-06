@@ -45,14 +45,14 @@ const Bech32 = async (hrp: string) => {
 
   return {
     setHRPNetwork: (hrp: string): void => _global.__setHRPNetwork(hrp),
-    getHRPNetwork: () => _global.__getHRPNetwork(),
-    generateAddress: hrpOptional((pubKey: Uint8Array) => {
+    getHRPNetwork: (): string => _global.__getHRPNetwork(),
+    generateAddress: hrpOptional((pubKey: Uint8Array): string => {
       if (pubKey?.length < 20) {
         throw new Error('20 bytes required to generate address');
       }
       return _global.__generateAddress(pubKey);
     }),
-    verify: hrpOptional((addr: string) => {
+    verify: hrpOptional((addr: string): boolean => {
       const [err, res] = _global.__parse(addr);
       if (err) return false;
       return !!res;
