@@ -1,6 +1,6 @@
 {
-  "name": "@spacemeshos/address-wasm",
-  "version": "0.0.1",
+  "name": "@spacemesh/address-wasm",
+  "version": "0.1.0",
   "description": "",
   "main": "./lib/index.js",
   "directories": {

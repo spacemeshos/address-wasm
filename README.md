@@ -1,15 +1,18 @@
 ## @spacemeshos/address-wasm
 
+[![npm (scoped)](https://img.shields.io/npm/v/@spacemesh/address-wasm.svg)](https://www.npmjs.com/package/@spacemesh/address-wasm)
+[![npm bundle size (minified)](https://img.shields.io/bundlephobia/min/@spacemesh/address-wasm.svg)](https://www.npmjs.com/package/@spacemesh/address-wasm)
+
 This package implements BECH32 address encoder and verifyier.
 
 To start using the library you need to install it first:
 ```sh
-yarn add @spacemeshos/address-wasm
+yarn add @spacemesh/address-wasm
 ```
 
 And then start using it in your code:
 ```js
-import bech32 from '@spacemeshos/address-wasm'
+import bech32 from '@spacemesh/address-wasm'
 
 (async () => {
   // Initialize wasm
