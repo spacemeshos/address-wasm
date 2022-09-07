@@ -1,6 +1,6 @@
 import bech32, { Bech32 } from './index';
 
-describe('@spacemeshos/address-wasm', () => {
+describe('@spacemesh/address-wasm', () => {
   let b32: Bech32;
   beforeAll(async () => {
     b32 = await bech32('sm');

@@ -1,4 +1,4 @@
-## @spacemeshos/address-wasm
+## @spacemesh/address-wasm
 
 [![npm (scoped)](https://img.shields.io/npm/v/@spacemesh/address-wasm.svg)](https://www.npmjs.com/package/@spacemesh/address-wasm)
 [![npm bundle size (minified)](https://img.shields.io/bundlephobia/min/@spacemesh/address-wasm.svg)](https://www.npmjs.com/package/@spacemesh/address-wasm)
