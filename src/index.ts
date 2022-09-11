@@ -45,28 +45,39 @@ const hrpOptional = <A, T>(action: (arg: A) => T) => (arg: A, hrp: string | null
 };
 
 class Bech32 {
+  static isReady = false;
+
+  // This method will be automatically called on any
+  // request. But you may run the method earlier in
+  // a proper moment (eg. within pre-loading state)
   static init() {
     load();
     runWasm(require('../build/main.inl.js'));
+    this.isReady = true;
   }
-  static setHRPNetwork = (hrp: string) => global.__setHRPNetwork(hrp)
-
-  static getHRPNetwork = () => global.__getHRPNetwork()
-
+  static setHRPNetwork = (hrp: string) => {
+    if (!this.isReady) { this.init(); }
+    return global.__setHRPNetwork(hrp);
+  }
+  static getHRPNetwork = () => {
+    if (!this.isReady) { this.init(); }
+    return global.__getHRPNetwork();
+  }
   static generateAddress = hrpOptional((pubKey: Uint8Array): string => {
+    if (!this.isReady) { this.init(); }
     if (pubKey?.length < 20) {
       throw new Error('20 bytes required to generate address');
     }
     return global.__generateAddress(pubKey);
   })
-
   static verify = hrpOptional((addr: string): boolean => {
+    if (!this.isReady) { this.init(); }
     const [err, res] = global.__parse(addr);
     if (err) return false;
     return !!res;
   })
-
   static parse = hrpOptional((addr: string) => {
+    if (!this.isReady) { this.init(); }
     const r = global.__parse(addr);
     const [err, hex] = r;
     if (err) {
