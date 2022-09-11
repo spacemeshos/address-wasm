@@ -1,6 +1,6 @@
 {
   "name": "@spacemesh/address-wasm",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "WASM-Implementation of BECH32 address codec",
   "main": "./lib/index.js",
   "directories": {
