@@ -5,16 +5,22 @@ const load = () => {
   return global;
 };
 
-const runWasm = async (wasmBytes: () => Uint8Array) => {
+declare global {
+  var Go: {
+    new(): {
+      run: (instance: WebAssembly.Instance) => void;
+      importObject: WebAssembly.Imports;
+    }
+  }
+}
+
+const runWasm = (wasmBytes: () => Uint8Array) => {
   const bytes = wasmBytes() as Uint8Array;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const go = new (global as any).Go();
-  const { instance } = await WebAssembly.instantiate(
-    bytes.buffer,
-    go.importObject
-  );
+  const go = new global.Go();
+  const mod = new WebAssembly.Module(bytes.buffer);
+  const instance = new WebAssembly.Instance(mod, go.importObject);
   go.run(instance);
-  return go;
+  return instance;
 };
 
 const hexToBytes = (hex: string): Uint8Array => {
@@ -23,50 +29,51 @@ const hexToBytes = (hex: string): Uint8Array => {
   return Uint8Array.from(bytes);
 };
 
-const Bech32 = async (hrp: string) => {
-  const _global = load();
-  await runWasm(require('../build/main.inl.js'));
-  _global.__setHRPNetwork(hrp);
-
-  const stateless = <T>(action: (...args: any) => T, hrp: string) => (...args: any) => {
-    const prevHrp = _global.__getHRPNetwork();
-    _global.__setHRPNetwork(hrp);
-    const r = action(...args);
-    _global.__setHRPNetwork(prevHrp);
-    return r;
-  };
-
-  const hrpOptional = <A, T>(action: (arg: A) => T) => (arg: A, hrp: string | null = null) => {
-    if (hrp) {
-      return stateless(action, hrp)(arg);
-    }
-    return action(arg);
-  };
-
-  return {
-    setHRPNetwork: (hrp: string): void => _global.__setHRPNetwork(hrp),
-    getHRPNetwork: (): string => _global.__getHRPNetwork(),
-    generateAddress: hrpOptional((pubKey: Uint8Array): string => {
-      if (pubKey?.length < 20) {
-        throw new Error('20 bytes required to generate address');
-      }
-      return _global.__generateAddress(pubKey);
-    }),
-    verify: hrpOptional((addr: string): boolean => {
-      const [err, res] = _global.__parse(addr);
-      if (err) return false;
-      return !!res;
-    }),
-    parse: hrpOptional((addr: string) => {
-      const r = _global.__parse(addr);
-      const [err, hex] = r;
-      if (err) {
-        throw new Error(err);
-      }
-      return hexToBytes(hex)
-    }),
-  };
+const stateless = <T>(action: (...args: any) => T, hrp: string) => (...args: any) => {
+  const prevHrp = Bech32.getHRPNetwork();
+  Bech32.setHRPNetwork(hrp);
+  const r = action(...args);
+  Bech32.setHRPNetwork(prevHrp);
+  return r;
 };
-export default Bech32;
 
-export type Bech32 = Awaited<ReturnType<typeof Bech32>>;
+const hrpOptional = <A, T>(action: (arg: A) => T) => (arg: A, hrp: string | null = null) => {
+  if (hrp) {
+    return stateless(action, hrp)(arg);
+  }
+  return action(arg);
+};
+
+class Bech32 {
+  static init() {
+    load();
+    runWasm(require('../build/main.inl.js'));
+  }
+  static setHRPNetwork = (hrp: string) => global.__setHRPNetwork(hrp)
+
+  static getHRPNetwork = () => global.__getHRPNetwork()
+
+  static generateAddress = hrpOptional((pubKey: Uint8Array): string => {
+    if (pubKey?.length < 20) {
+      throw new Error('20 bytes required to generate address');
+    }
+    return global.__generateAddress(pubKey);
+  })
+
+  static verify = hrpOptional((addr: string): boolean => {
+    const [err, res] = global.__parse(addr);
+    if (err) return false;
+    return !!res;
+  })
+
+  static parse = hrpOptional((addr: string) => {
+    const r = global.__parse(addr);
+    const [err, hex] = r;
+    if (err) {
+      throw new Error(err);
+    }
+    return hexToBytes(hex)
+  })
+}
+
+export default Bech32;
